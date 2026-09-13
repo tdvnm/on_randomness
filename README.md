@@ -1,30 +1,25 @@
 # Does Random Mean Secure?
 ### A Probability and Statistics Project on Randomness, Entropy and Cryptography
 
-**Where this is right now:** proposal stage. `main.pdf` is a short document
+**Where this is right now:** proposal stage. `paper/main.pdf` is a short document
 that says what I want to find out, what the project will cover, which parts of
 the probability course I will use, and which papers and books I am drawing on.
-The full report (`sections/01`–`13`) gets written after that, one section at a
+The full report (`paper/sections/01`–`13`) gets written after that, one section at a
 time.
 
 ## Repository layout
 
-| Path | What it is |
-|---|---|
-| `main.tex`, `preamble.tex` | Paper entry point and shared macros (`\Prob`, `\Ent`, `\MI`, `\xor`, …) |
-| `sections/00-proposal.tex` | The proposal — the whole document for now |
-| `sections/01-*.tex` … `13-*.tex` | Full report sections, stubbed until written |
-| `refs.bib` | Bibliography (see *References* below) |
-| `code/` | Simulations and the randomness-testing / encryption tools (to come) |
-| `figures/` | Generated plots (to come) |
-| `main.pdf` | Latest compiled paper |
+```
+paper/   the LaTeX paper (main.tex, sections/, refs.bib, figures/, main.pdf)
+code/    simulations and the randomness-testing / encryption tools
+```
 
 ## Building the paper
 
 Requires a TeX distribution with `latexmk` and `biber`.
 
 ```sh
-latexmk -pdf main.tex
+cd paper && latexmk -pdf main.tex
 ```
 
 ## References
