@@ -12,6 +12,8 @@ The main idea of this project is to investigate two questions:
 1. How can we use statistics to test whether something behaves randomly?
 2. How does the quality of randomness affect the security of encryption?
 
+The project will combine statistical experiments, simulations and simple encryption systems to study these questions.
+
 ---
 
 ## Main Research Question
