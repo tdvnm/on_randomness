@@ -1,6 +1,55 @@
 # Does Random Mean Secure?
 ### A Probability and Statistics Project on Randomness, Entropy and Cryptography
 
+**Where this is right now:** proposal stage. `main.pdf` is a short document
+that says what I want to find out, what the project will cover, which parts of
+the probability course I will use, and which papers and books I am drawing on.
+The full report (`sections/01`–`13`) gets written after that, one section at a
+time.
+
+## Repository layout
+
+| Path | What it is |
+|---|---|
+| `main.tex`, `preamble.tex` | Paper entry point and shared macros (`\Prob`, `\Ent`, `\MI`, `\xor`, …) |
+| `sections/00-proposal.tex` | The proposal — the whole document for now |
+| `sections/01-*.tex` … `13-*.tex` | Full report sections, stubbed until written |
+| `refs.bib` | Bibliography (see *References* below) |
+| `code/` | Simulations and the randomness-testing / encryption tools (to come) |
+| `figures/` | Generated plots (to come) |
+| `main.pdf` | Latest compiled paper |
+
+## Building the paper
+
+Requires a TeX distribution with `latexmk` and `biber`.
+
+```sh
+latexmk -pdf main.tex
+```
+
+## References
+
+Primary sources the project is built on:
+
+- C. E. Shannon, *Communication Theory of Secrecy Systems*, Bell System Technical Journal 28(4), 1949 — perfect secrecy and the one-time pad.
+- C. E. Shannon, *A Mathematical Theory of Communication*, Bell System Technical Journal 27, 1948 — entropy, conditional entropy, mutual information.
+- A. Rukhin et al., *A Statistical Test Suite for Random and Pseudorandom Number Generators for Cryptographic Applications*, NIST SP 800-22 Rev. 1a, 2010 — the randomness test battery.
+- L. Blum, M. Blum, M. Shub, *A Simple Unpredictable Pseudo-Random Number Generator*, SIAM J. Comput. 15(2), 1986 — cryptographic unpredictability.
+
+Background:
+
+- J. K. Blitzstein and J. Hwang, *Introduction to Probability*, CRC Press, 2015 — the course textbook; the paper maps every probability concept it uses to a section of this book.
+- T. M. Cover and J. A. Thomas, *Elements of Information Theory*, 2nd ed., Wiley, 2006.
+- D. E. Knuth, *The Art of Computer Programming*, Vol. 2, Ch. 3, 3rd ed., Addison-Wesley, 1997 — LCGs and empirical randomness tests.
+- J. Katz and Y. Lindell, *Introduction to Modern Cryptography*, 3rd ed., CRC Press, 2020.
+- K. Pearson, 1900 (chi-square test) and A. Wald and J. Wolfowitz, 1940 (runs test) — original sources for the two classical tests.
+
+---
+
+## Project outline
+
+The rest of this file is my working outline for the full project (11 parts).
+
 ## Project Overview
 
 This project studies the connection between probability, randomness and encryption.
