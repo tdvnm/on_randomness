@@ -4,8 +4,8 @@
 \section{Introduction}\label{sec:intro}
 
 Cryptography needs random numbers. Keys, nonces, session tokens, padding:
-all of them have to be numbers an attacker cannot guess. But people mean two
-different things by ``random'', and it is easy to mix them up.
+all of them have to be numbers an attacker cannot guess. But ``random'' means two
+different things, and it is easy to mix them up.
 \begin{enumerate}
   \item A sequence \emph{looks} random. It has about as many zeros as ones,
         the runs are the right length, nothing repeats.
@@ -36,8 +36,8 @@ Two smaller questions come before and after it:
         randomly? And what do those tests miss?
   \item If a sequence passes the tests, is it safe to use as a key?
 \end{enumerate}
-I expect the answer to the last one is no. The point of the project is to
-show exactly why.
+I expect the answer to the last one is no.  The point of the project is to
+show why.
 
 \section{What the project will cover}\label{sec:scope}
 
@@ -166,7 +166,7 @@ page). It lets you
 
 \section{Probability and statistics I will use}\label{sec:topics}
 
-I want to \emph{use} the course material, not repeat it.
+I want to use the course material, not repeat it.
 Table~\ref{tab:topics} lists what the project needs and where Blitzstein and
 Hwang~\cite{blitzstein2015}, the course textbook, cover it. Entropy and
 mutual information are not in that book; for those I go to
@@ -293,8 +293,8 @@ Table~\ref{tab:topics}.
 
 \section{A first derivation}\label{sec:first-derivation}
 
-To check that the notation above actually works, here is the one derivation
-the whole project hangs on, done for the smallest case I will use.
+Here is the one derivation the whole project rests on.  I do it now to
+show that the notation above works.
 
 Take $\msg, \key, \ctxt \in \bits^n$ with $\ctxt = \msg \xor \key$, and let
 $\key$ be uniform on $\bits^n$ and independent of $\msg$. Fix any $m$ and $c$.
@@ -314,23 +314,23 @@ and Bayes' rule finishes it:
     = \frac{\Prob{\ctxt = c \mid \msg = m}\,\Prob{\msg = m}}{\Prob{\ctxt = c}}
     = \frac{2^{-n}\,\Prob{\msg = m}}{2^{-n}} = \Prob{\msg = m}.
 \]
-That is Shannon's condition exactly, and it holds for \emph{every} message
-distribution, including the lopsided one in Part~III. The three tools used
-are conditional probability, the law of total probability and Bayes' rule,
-all from Chapter~2 of the course textbook.
+That is Shannon's condition.  It holds for every message distribution,
+including the lopsided one in Part~III.  The proof uses three tools:
+conditional probability, the law of total probability and Bayes' rule.
+All three are in Chapter~2 of the course textbook.
 
-The same computation shows what goes wrong when the key is not uniform. If
-$\Prob{\key = k}$ varies with $k$, then
-$\Prob{\ctxt = c \mid \msg = m} = \Prob{\key = m \xor c}$ varies with $m$, so
-the ciphertext distribution depends on the message and
-$\Prob{\msg = m \mid \ctxt = c} \neq \Prob{\msg = m}$ in general. Part~III
-measures \emph{how much} it differs, using $\MI{\msg}{\ctxt}$.
+The same computation shows what breaks when the key is not uniform.  If
+$\Prob{\key = k}$ depends on $k$, then
+$\Prob{\ctxt = c \mid \msg = m} = \Prob{\key = m \xor c}$ depends on $m$.
+So the ciphertext carries information about the message, and
+$\Prob{\msg = m \mid \ctxt = c} \neq \Prob{\msg = m}$ in general.
+Part~III measures how much, using $\MI{\msg}{\ctxt}$.
 
 \section{Plan of work}\label{sec:plan}
 
-Table~\ref{tab:plan} is the order I intend to do things in. The simulations
-come before the writing in each part, so that the report describes results I
-actually have.
+Table~\ref{tab:plan} is the order I will do things in.  In each part the
+simulations come before the writing.  That way the report describes
+results I have, not results I expect.
 
 \begin{table}[htbp]
   \centering
