@@ -1,0 +1,73 @@
+% Starter deck for the project presentation. Shares macros with the paper.
+\documentclass[11pt,aspectratio=169]{beamer}
+\usetheme{metropolis}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\input{../paper/macros}
+
+\title{Does Random Mean Secure?}
+\subtitle{Randomness, Entropy and Perfect Secrecy}
+\author{tdvnm}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}{Two meanings of ``random''}
+  \begin{enumerate}
+    \item A sequence \emph{looks} random: balanced, right run lengths,
+          nothing repeats. \hfill (statistics)
+    \item A sequence \emph{is} unpredictable: knowing everything else, you
+          still cannot guess the next bit. \hfill (cryptography)
+  \end{enumerate}
+  \pause
+  \begin{block}{The question}
+    If the randomness behind a key gets worse, how much more does the
+    ciphertext reveal about the message?
+  \end{block}
+\end{frame}
+
+\begin{frame}{Perfect secrecy}
+  Shannon (1949): a cipher is perfectly secret if for every $m$ and $c$
+  \[
+    \Prob{\msg = m \mid \ctxt = c} = \Prob{\msg = m}.
+  \]
+  Equivalently, $\MI{\msg}{\ctxt} = \Ent{\msg} - \CEnt{\msg}{\ctxt} = 0$.
+  \medskip
+
+  For $\ctxt = \msg \xor \key$ with $\key$ uniform on $\bits^n$ and
+  independent of $\msg$:
+  \[
+    \Prob{\ctxt = c \mid \msg = m} = \Prob{\key = m \xor c} = 2^{-n},
+  \]
+  which does not depend on $m$, so Bayes' rule gives perfect secrecy.
+\end{frame}
+
+\begin{frame}{The main experiment}
+  Fix the cipher $\ctxt = \msg \xor \key$, $\msg \in \bits^2$ lopsided.
+  Only change the key source.
+  \begin{center}
+    \begin{tabular}{@{}lll@{}}
+      \toprule
+      Key & Expected $\MI{\msg}{\ctxt}$ \\
+      \midrule
+      A. uniform         & $\to 0$ \\
+      B. one value w.p.\ $0.7$ & $> 0$ \\
+      C. bits $1$ w.p.\ $q \in [0.5, 0.95]$ & grows with $q$ \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \medskip
+  Main figure: leakage against key bias, simulation vs.\ exact.
+\end{frame}
+
+\begin{frame}{Takeaway}
+  \begin{center}
+    \Large Good randomness is necessary for secrecy.\\
+    But looking random is not enough to make something secure.
+  \end{center}
+\end{frame}
+
+\end{document}

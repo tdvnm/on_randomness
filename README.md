@@ -11,6 +11,7 @@ time.
 
 ```
 paper/   the LaTeX paper (main.tex, sections/, refs.bib, figures/, main.pdf)
+slides/  Beamer deck for the presentation (shares paper/macros.tex)
 code/    simulations and the randomness-testing / encryption tools
 ```
 
@@ -20,6 +21,7 @@ Requires a TeX distribution with `latexmk` and `biber`.
 
 ```sh
 cd paper && latexmk -pdf main.tex
+cd slides && latexmk -pdf main.tex   # slides (needs the metropolis theme)
 ```
 
 ## References

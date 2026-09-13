@@ -291,6 +291,74 @@ The original papers for the chi-square goodness-of-fit test and the runs test.
 The course textbook. All the probability background is referred to it, as in
 Table~\ref{tab:topics}.
 
+\section{A first derivation}\label{sec:first-derivation}
+
+To check that the notation above actually works, here is the one derivation
+the whole project hangs on, done for the smallest case I will use.
+
+Take $\msg, \key, \ctxt \in \bits^n$ with $\ctxt = \msg \xor \key$, and let
+$\key$ be uniform on $\bits^n$ and independent of $\msg$. Fix any $m$ and $c$.
+Because XOR is its own inverse, the event $\{\msg = m, \ctxt = c\}$ is the
+same as $\{\msg = m, \key = m \xor c\}$, so by independence
+\[
+  \Prob{\ctxt = c \mid \msg = m} = \Prob{\key = m \xor c} = 2^{-n}.
+\]
+The right-hand side does not depend on $m$. By the law of total probability,
+\[
+  \Prob{\ctxt = c} = \sum_{m'} \Prob{\ctxt = c \mid \msg = m'}\Prob{\msg = m'}
+                   = 2^{-n} \sum_{m'} \Prob{\msg = m'} = 2^{-n},
+\]
+and Bayes' rule finishes it:
+\[
+  \Prob{\msg = m \mid \ctxt = c}
+    = \frac{\Prob{\ctxt = c \mid \msg = m}\,\Prob{\msg = m}}{\Prob{\ctxt = c}}
+    = \frac{2^{-n}\,\Prob{\msg = m}}{2^{-n}} = \Prob{\msg = m}.
+\]
+That is Shannon's condition exactly, and it holds for \emph{every} message
+distribution, including the lopsided one in Part~III. The three tools used
+are conditional probability, the law of total probability and Bayes' rule,
+all from Chapter~2 of the course textbook.
+
+The same computation shows what goes wrong when the key is not uniform. If
+$\Prob{\key = k}$ varies with $k$, then
+$\Prob{\ctxt = c \mid \msg = m} = \Prob{\key = m \xor c}$ varies with $m$, so
+the ciphertext distribution depends on the message and
+$\Prob{\msg = m \mid \ctxt = c} \neq \Prob{\msg = m}$ in general. Part~III
+measures \emph{how much} it differs, using $\MI{\msg}{\ctxt}$.
+
+\section{Plan of work}\label{sec:plan}
+
+Table~\ref{tab:plan} is the order I intend to do things in. The simulations
+come before the writing in each part, so that the report describes results I
+actually have.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{@{}lp{0.62\linewidth}@{}}
+    \toprule
+    Week & Work \\
+    \midrule
+    1 & Set up the code: bit-sequence sources (coins, LCG, OS generator,
+        BBS) and the five tests. Check each test on a known-fair source
+        by looking at the distribution of its $p$-values. \\
+    2 & Collect human sequences; fit the two-state Markov model; write
+        Part~I. \\
+    3 & Caesar, XOR and one-time-pad implementations; estimators for
+        $\Ent{\cdot}$, $\CEnt{\cdot}{\cdot}$ and $\MI{\cdot}{\cdot}$ from
+        samples; write Part~II. \\
+    4 & Main experiment (A, B and the sweep C); exact mutual information
+        for the two-bit system to compare against; the main figure. \\
+    5 & Part~IV: recover an LCG's state from its outputs; contrast with
+        BBS. Interactive program. \\
+    6 & Write the introduction and conclusion last; proofread; final
+        figures. \\
+    \bottomrule
+  \end{tabular}
+  \caption{Planned order of work.}
+  \label{tab:plan}
+\end{table}
+
 \section{The end goal}\label{sec:goal}
 
 I want to follow the chain
