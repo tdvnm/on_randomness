@@ -1,10 +1,16 @@
-% Starter deck for the project presentation. Shares macros with the paper.
-\documentclass[11pt,aspectratio=169]{beamer}
+% Deck for the project presentation. Shares macros with the paper.
+\documentclass[10pt,aspectratio=169]{beamer}
 \usetheme{metropolis}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath, amssymb}
 \usepackage{booktabs}
 \input{../paper/macros}
+
+\newcommand{\Bern}{\mathrm{Bern}}
+\newcommand{\Bin}{\mathrm{Bin}}
+\newcommand{\Unif}{\mathrm{Unif}}
+\newcommand{\Mult}{\mathrm{Mult}}
+\newcommand{\Ind}[1]{\mathbf{1}\{#1\}}
 
 \title{Does Random Mean Secure?}
 \subtitle{Randomness, Entropy and Perfect Secrecy}
@@ -15,6 +21,9 @@
 
 \maketitle
 
+% ---------------------------------------------------------------------
+\section{The problem}
+
 \begin{frame}{Two meanings of ``random''}
   \begin{enumerate}
     \item A sequence \emph{looks} random: balanced, right run lengths,
@@ -23,10 +32,122 @@
           still cannot guess the next bit. \hfill (cryptography)
   \end{enumerate}
   \pause
+  These come apart in both directions.
+  \begin{itemize}
+    \item A sequence can pass every test and be fully predictable.
+    \item A ciphertext can look like noise and still leak the message.
+  \end{itemize}
+  \pause
   \begin{block}{The question}
     If the randomness behind a key gets worse, how much more does the
     ciphertext reveal about the message?
   \end{block}
+\end{frame}
+
+\begin{frame}{Why anyone should care}
+  Every key, nonce and session token is a number an attacker must not
+  guess. When the randomness behind them is bad, the cipher does not
+  matter.
+  \begin{itemize}
+    \item Debian's OpenSSL, 2006--08: a patch cut the seeding down to the
+          process ID. Every key made in two years came from a pool of
+          $32{,}767$.
+    \item Sony's PlayStation~3, 2010: the same ``random'' number was
+          reused in every signature. That gave away the private key.
+  \end{itemize}
+  \pause
+  Both systems used sound ciphers. Nothing in the output gave the
+  failure away: the keys and signatures looked fine. The failure was in
+  the probability, not the algorithm.
+  \medskip
+
+  I want to measure that failure with the tools from this course.
+\end{frame}
+
+% ---------------------------------------------------------------------
+\section{The model}
+
+\begin{frame}{The probability model}
+  \textbf{Part I: is this sequence random?} A hypothesis test.
+  \begin{itemize}
+    \item Null $H_0$: the bits $B_1,\dots,B_n$ are i.i.d.\ $\Bern(\tfrac12)$.
+    \item Alternatives: a biased coin $\Bern(p)$; a person, modelled as a
+          two-state Markov chain that switches too often; a generator
+          that is not random at all.
+    \item Each test picks a statistic $T$, works out its law under $H_0$,
+          and reports the $p$-value
+          $\Prob{T \text{ at least as extreme as } t_{\mathrm{obs}} \mid H_0}$.
+  \end{itemize}
+  \pause
+  \textbf{Part II: what does a ciphertext give away?} A joint distribution.
+  \begin{itemize}
+    \item Three random variables $\msg, \key, \ctxt$ with
+          $\ctxt = \msg \xor \key$ and $\key$ independent of $\msg$.
+    \item Secrecy is a statement about conditional probability:
+          $\Prob{\msg = m \mid \ctxt = c} = \Prob{\msg = m}$.
+    \item Leakage is a number: $\MI{\msg}{\ctxt}$, estimated from
+          simulated $(\msg,\ctxt)$ pairs and checked against the exact
+          value.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Random variables: the sequence}
+  Under $H_0$ the bits are i.i.d.\ $\Bern(\tfrac12)$;
+  $h(p) = -p\log_2 p - (1-p)\log_2(1-p)$ is the binary entropy.
+  \begin{center}\footnotesize
+    \begin{tabular}{@{}llll@{}}
+      \toprule
+      Variable & Definition & Law under $H_0$ & Test \\
+      \midrule
+      $B_i$ & one bit & $\Bern(\tfrac12)$, independent & --- \\
+      $X$ & $\sum_{i=1}^{n} B_i$ & $\Bin(n,\tfrac12)$;
+            $\Ex{X}=\tfrac n2$, $\Var{X}=\tfrac n4$ & frequency \\
+      $R$ & $1+\sum_{i=1}^{n-1}\Ind{B_i\ne B_{i+1}}$
+          & $R-1 \sim \Bin(n-1,\tfrac12)$ & runs \\
+      $N_{ab}$ & count of pair $ab$ in $n/2$ blocks
+               & $(N_{00},\dots,N_{11})\sim\Mult(\tfrac n2,\tfrac14,\dots)$ & chi-square \\
+      $Q$ & $\sum_{ab}(N_{ab}-n/8)^2/(n/8)$ & $\approx\chi^2_3$ & chi-square \\
+      $A_k$ & $\sum_{i=1}^{n-k}\Ind{B_i\ne B_{i+k}}$ & $\Bin(n-k,\tfrac12)$ & autocorrelation \\
+      $\Ent{B}$ & $h(p)$ & $=1$ bit iff $p=\tfrac12$ & entropy \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \pause
+  \small
+  The runs law: $D_i = B_i \xor B_{i+1}$ are again i.i.d.\ $\Bern(\tfrac12)$,
+  since $(B_1,D_1,\dots,D_{n-1})$ is a bijective image of $(B_1,\dots,B_n)$.
+  A person who switches with probability $s>\tfrac12$ gives
+  $R-1\sim\Bin(n-1,s)$ instead. The frequency test misses this; the runs
+  test does not.
+\end{frame}
+
+\begin{frame}{Random variables: the cipher}
+  Everything lives in $\bits^2$, so I can compute exact answers.
+  \begin{center}\footnotesize
+    \begin{tabular}{@{}lll@{}}
+      \toprule
+      Variable & Distribution & Role \\
+      \midrule
+      $\msg$ & $\Prob{00,01,10,11} = (0.4,\,0.3,\,0.2,\,0.1)$;
+               $\Ent{\msg} \approx 1.85$ bits & message, lopsided on purpose \\
+      $\key$ & independent of $\msg$; one of: & key \\
+      \quad A & $\Unif(\bits^2)$; $\Ent{\key} = 2$ & one-time pad \\
+      \quad B & $\Prob{\key=00}=0.7$, the rest $0.1$ each & one bad value \\
+      \quad C & $K_1,K_2$ i.i.d.\ $\Bern(q)$, $q\in[0.5,0.95]$;
+                $\Ent{\key}=2h(q)$ & the sweep \\
+      $\ctxt$ & $\ctxt = \msg\xor\key$;\;
+                $\Prob{\ctxt=c} = \sum_m \Prob{\msg=m}\Prob{\key=m\xor c}$
+              & what the attacker sees \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \pause
+  \small
+  Leakage: $\MI{\msg}{\ctxt} = \Ent{\msg} - \CEnt{\msg}{\ctxt}
+  = \Ent{\ctxt} - \Ent{\key}$, since $\CEnt{\ctxt}{\msg} = \Ent{\key}$.
+  So the sweep has an exact curve. The simulation plugs the counts from
+  $N$ pairs into the same formula; the law of large numbers takes it to
+  the exact value.
 \end{frame}
 
 \begin{frame}{Perfect secrecy}
@@ -43,6 +164,36 @@
     \Prob{\ctxt = c \mid \msg = m} = \Prob{\key = m \xor c} = 2^{-n},
   \]
   which does not depend on $m$, so Bayes' rule gives perfect secrecy.
+  \medskip
+
+  If $\Prob{\key = k}$ varies with $k$, the left side varies with $m$,
+  and the ciphertext carries information. Part~III measures how much.
+\end{frame}
+
+% ---------------------------------------------------------------------
+\section{Research direction}
+
+\begin{frame}{Research direction}
+  Follow the chain
+  \[
+    \text{randomness} \to \text{uncertainty} \to \text{information}
+    \to \text{secrecy}
+  \]
+  with a derivation and a simulation for every link.
+  \begin{enumerate}
+    \item \textbf{Test.} Coins, people, an LCG, the OS generator,
+          Blum--Blum--Shub. Run the five tests on each. Fit the Markov
+          model to the human sequences.
+    \item \textbf{Encrypt.} Caesar, XOR, one-time pad. Show which ones
+          meet Shannon's condition and by how much the others miss it.
+    \item \textbf{Degrade the key.} Fix the cipher, sweep $q$ from $0.5$
+          to $0.95$, plot $\MI{\msg}{\ctxt}$ against $q$ and against
+          $\Ent{\key}$. Simulation next to the exact curve.
+    \item \textbf{Break a good-looking generator.} Recover an LCG's
+          state from a few outputs. For a real source
+          $\CEnt{B_{n+1}}{B_1,\dots,B_n} = 1$; for the LCG it is $0$
+          once the state is known.
+  \end{enumerate}
 \end{frame}
 
 \begin{frame}{The main experiment}
@@ -61,6 +212,24 @@
   \end{center}
   \medskip
   Main figure: leakage against key bias, simulation vs.\ exact.
+\end{frame}
+
+\begin{frame}{What I expect to find}
+  \begin{itemize}
+    \item Hand-made sequences fail the runs test even when they pass the
+          frequency test.
+    \item Caesar leaks almost all of $\Ent{\msg}$: letter frequencies
+          survive the shift.
+    \item The one-time pad gives $\MI{\msg}{\ctxt} \approx 0$ in
+          simulation, matching the exact zero.
+    \item Leakage rises as $\Ent{\key}$ falls, and never below
+          $\Ent{\msg} - \Ent{\key}$: Shannon's bound.
+    \item An LCG passes all five tests and is predictable from a handful
+          of outputs.
+  \end{itemize}
+  \medskip
+  Deliverables: the report, the code, and a small program that runs the
+  tests on a sequence you type in.
 \end{frame}
 
 \begin{frame}{Takeaway}
