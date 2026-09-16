@@ -31,7 +31,6 @@ Primary sources the project is built on:
 - C. E. Shannon, *Communication Theory of Secrecy Systems*, Bell System Technical Journal 28(4), 1949 — perfect secrecy and the one-time pad.
 - C. E. Shannon, *A Mathematical Theory of Communication*, Bell System Technical Journal 27, 1948 — entropy, conditional entropy, mutual information.
 - A. Rukhin et al., *A Statistical Test Suite for Random and Pseudorandom Number Generators for Cryptographic Applications*, NIST SP 800-22 Rev. 1a, 2010 — the randomness test battery.
-- L. Blum, M. Blum, M. Shub, *A Simple Unpredictable Pseudo-Random Number Generator*, SIAM J. Comput. 15(2), 1986 — cryptographic unpredictability.
 
 Background:
 
@@ -39,7 +38,7 @@ Background:
 - T. M. Cover and J. A. Thomas, *Elements of Information Theory*, 2nd ed., Wiley, 2006.
 - D. E. Knuth, *The Art of Computer Programming*, Vol. 2, Ch. 3, 3rd ed., Addison-Wesley, 1997 — LCGs and empirical randomness tests.
 - J. Katz and Y. Lindell, *Introduction to Modern Cryptography*, 3rd ed., CRC Press, 2020.
-- K. Pearson, 1900 (chi-square test) and A. Wald and J. Wolfowitz, 1940 (runs test) — original sources for the two classical tests.
+- A. Wald and J. Wolfowitz, 1940 — original source for the runs test.
 
 ---
 
@@ -99,7 +98,7 @@ These will include:
 - biased coin flips
 - human-generated "random" sequences
 - sequences from simple pseudorandom number generators
-- sequences from stronger random or cryptographic generators
+- sequences from the operating system's random generator
 
 The goal is to see whether statistical methods can distinguish between them.
 
@@ -147,31 +146,6 @@ This will also be useful when comparing human-generated sequences with computer-
 
 ---
 
-## Chi-Square Test
-
-A chi-square test can be used to compare observed frequencies with expected frequencies.
-
-For example, for pairs of independent random bits, the patterns:
-
-- 00
-- 01
-- 10
-- 11
-
-should each appear approximately 25% of the time.
-
-Large differences may indicate some structure or bias in the sequence.
-
----
-
-## Autocorrelation
-
-Autocorrelation will be used to check whether values in one part of the sequence are related to values appearing later.
-
-Ideally, independent random bits should have very little correlation with previous bits.
-
----
-
 ## Entropy
 
 Entropy will be used as another way of measuring uncertainty.
@@ -216,8 +190,6 @@ The program will analyse the sequence using:
 - number of runs
 - longest run
 - entropy
-- autocorrelation
-- statistical randomness tests
 
 The results can then be compared with computer-generated random sequences.
 
@@ -255,8 +227,6 @@ Can someone predict future values?
 
 A generator may perform well in statistical tests but still be unsafe for cryptography.
 
-I may also briefly study the Blum-Blum-Shub pseudorandom generator as an example of a generator designed with cryptographic unpredictability in mind.
-
 ---
 
 # Part 5: Introducing Encryption
@@ -268,8 +238,7 @@ A few simple encryption methods will be used so that their statistical behaviour
 These may include:
 
 - Caesar cipher
-- XOR encryption
-- XOR encryption using weak or biased keys
+- XOR encryption with keys of different quality
 - One-Time Pad
 
 The purpose is not to compare modern encryption algorithms, but to understand how probability and randomness affect secrecy.
@@ -424,33 +393,9 @@ as the number of simulations increases.
 
 ---
 
-## Experiment B: Biased Random Key
+## Experiment B: Gradually Increasing Bias
 
-The key distribution will then be deliberately changed.
-
-For example:
-
-P(00) = 0.70
-
-with the remaining probability distributed among the other keys.
-
-The encryption algorithm will still be exactly the same:
-
-C = M XOR K
-
-Only the source of randomness changes.
-
-The experiment will measure how much information now leaks through the ciphertext.
-
-The expectation is:
-
-I(M ; C) > 0
-
----
-
-## Experiment C: Gradually Increasing Bias
-
-Rather than testing only one biased key, I plan to gradually change the probability.
+Then I gradually make the key worse.
 
 For example:
 
@@ -490,8 +435,6 @@ Some deterministic generators may produce sequences that:
 - contain roughly equal numbers of zeros and ones
 - have normal-looking runs
 - have high entropy
-- pass basic chi-square tests
-- show very little autocorrelation
 
 Statistically, they may look random.
 
@@ -522,8 +465,7 @@ The program calculates:
 - entropy
 - number of runs
 - longest run
-- autocorrelation
-- results of statistical tests
+- results of the frequency and runs tests
 
 ---
 
@@ -550,8 +492,8 @@ The user will enter a message and see how it is encrypted using different method
 Examples may include:
 
 - Caesar cipher
-- XOR with biased randomness
-- XOR with a pseudorandom stream
+- XOR with a biased key
+- XOR with an LCG key stream
 - One-Time Pad
 
 The program can then display the statistical properties of the resulting ciphertext.
@@ -588,11 +530,8 @@ The project will cover several topics from probability and statistics, including
 - Bayes' theorem
 - independence
 - hypothesis testing
-- chi-square tests
 - p-values
 - runs tests
-- correlation
-- autocorrelation
 - entropy
 - conditional entropy
 - mutual information
@@ -627,9 +566,7 @@ These tests examine whether generated sequences have statistical properties expe
 
 ## Cryptographic Pseudorandomness
 
-The project will briefly look at the idea that cryptographic random generators need to be unpredictable, not simply statistically convincing.
-
-Blum-Blum-Shub may be used as a historical example of a pseudorandom generator designed around this idea.
+The project will briefly look at the idea that cryptographic random generators need to be unpredictable, not simply statistically convincing. The LCG is the worked example of a generator that is statistically convincing and not unpredictable.
 
 ---
 

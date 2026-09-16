@@ -17,9 +17,8 @@ Cryptography runs on randomness, but ``looks random'' and ``is secure'' are
 not the same thing. This project uses the probability and statistics from an
 introductory course to study the gap between them. In the first half I
 generate binary sequences from fair coins, biased coins, people asked to be
-random, a linear congruential generator and a cryptographic generator, and I
-run frequency, runs, chi-square, autocorrelation and entropy tests on all of
-them. In the second half I look at three simple ciphers---Caesar, XOR and the
+random, a linear congruential generator and the operating system's
+generator, and I run frequency, runs and entropy tests on all of them. In the second half I look at three simple ciphers---Caesar, XOR and the
 one-time pad---through Shannon's definition of perfect secrecy,
 $\Prob{\msg = m \mid \ctxt = c} = \Prob{\msg = m}$, and I measure how much a
 ciphertext gives away about its message using the mutual information

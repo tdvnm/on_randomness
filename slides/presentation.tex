@@ -1,0 +1,296 @@
+% Focused proposal talk (about 18 minutes, with time for questions).
+\documentclass[10pt,aspectratio=169]{beamer}
+\usetheme{Singapore}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\input{../paper/macros}
+\newcommand{\Bern}{\mathrm{Bern}}
+\newcommand{\Bin}{\mathrm{Bin}}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}[frame number]
+
+\title{Does Random Mean Secure?}
+\subtitle{A probability and statistics project proposal}
+\author{tdvnm}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{The problem}
+  Encryption needs a key that an attacker cannot predict.
+  \bigskip
+  \begin{center}
+    \Large Same encryption rule. Different key sources. Different security.
+  \end{center}
+  \bigskip
+  \begin{block}{The question}
+    If the key becomes more predictable, how much more does the ciphertext
+    tell us about the message?
+  \end{block}
+\end{frame}
+
+\begin{frame}{The route through the project}
+  \begin{enumerate}
+    \item \textbf{Test the source.} Do its bits behave like independent fair coin flips?
+    \item \textbf{Use it as a key.} Encrypt with a simple XOR cipher.
+    \item \textbf{Measure the leak.} How much does the ciphertext tell us?
+    \item \textbf{Check the limit of tests.} Can output look random while its
+          future is predictable?
+  \end{enumerate}
+  \bigskip
+  The cipher and message distribution stay fixed in the main experiment.
+  Only the key source changes.
+\end{frame}
+
+\begin{frame}{What would an ideal bit source do?}
+  Let $B_1,\ldots,B_n\in\bits$ be the output bits.
+  \begin{block}{Statistical model}
+    Under $H_0$, $B_i$ are independent and each is $\Bern(1/2)$.
+    Every $n$-bit sequence has probability $2^{-n}$.
+  \end{block}
+  Two simple ways to violate this model:
+  \begin{itemize}
+    \item \textbf{Bias:} ones appear more often than zeros.
+    \item \textbf{Dependence:} a bit depends on the bit before it.
+  \end{itemize}
+  \medskip
+  A good test for one failure may miss the other.
+\end{frame}
+
+\begin{frame}{Two tests, two different questions}
+  \small
+  \begin{center}
+    \begin{tabular}{@{}p{0.17\textwidth}p{0.39\textwidth}p{0.34\textwidth}@{}}
+      \toprule
+      Test & Statistic & Under independent fair bits \\
+      \midrule
+      Frequency & $X=\sum_{i=1}^n B_i$ (number of ones)
+                & $X\sim\Bin(n,1/2)$ \\
+      \addlinespace
+      Runs & $R=1+\sum_{i=1}^{n-1}\mathbf{1}\{B_i\ne B_{i+1}\}$
+           & $R-1\sim\Bin(n-1,1/2)$ \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \bigskip
+  A biased coin should affect frequency. A source that switches too often
+  can have about half ones and still fail the runs test.
+\end{frame}
+
+\begin{frame}{What a test result actually says}
+  A $p$-value asks: \emph{if the ideal model were true, how unusual would
+  this test statistic be?}
+  \bigskip
+  \begin{itemize}
+    \item A small $p$-value is evidence against that model.
+    \item A large $p$-value is not proof that the source is unpredictable.
+    \item These tests examine the output, not what an attacker knows
+          about the source.
+  \end{itemize}
+  \bigskip
+  \textbf{Planned comparison:} fair bits, biased bits, a source with
+  too many switches, and a simple deterministic generator.
+\end{frame}
+
+\begin{frame}{The gap: random-looking versus unpredictable}
+  A pseudorandom generator begins with a state $S_0$ and computes
+  \[
+    S_{i+1}=f(S_i), \qquad B_i=g(S_i).
+  \]
+  Its output may pass the two tests on a finite sample. But if an
+  attacker recovers a small state, the future output is fixed.
+  \bigskip
+  \begin{block}{Why the distinction matters}
+    A key source must resist prediction by an attacker; passing a few
+    output tests does not establish that property.
+  \end{block}
+\end{frame}
+
+\begin{frame}{The encryption model}
+  Use two-bit messages and keys:
+  \[
+    \ctxt=\msg\xor\key.
+  \]
+  For example, $01\xor10=11$. The receiver recovers the message because
+  $\ctxt\xor\key=\msg$.
+  \bigskip
+  \begin{block}{Attacker's view}
+    The attacker sees $\ctxt$ and knows the encryption rule and the
+    distributions of $\msg$ and $\key$, but not the chosen key.
+  \end{block}
+  Assume the key is independent of the message and used once.
+\end{frame}
+
+\begin{frame}{What perfect secrecy means}
+  Seeing the ciphertext should leave beliefs about the message unchanged:
+  \[
+    \Prob{\msg=m\mid\ctxt=c}=\Prob{\msg=m}.
+  \]
+  With a uniform two-bit key, each key has probability $1/4$, so
+  \[
+    \Prob{\ctxt=c\mid\msg=m}
+      =\Prob{\key=m\xor c}=\tfrac14
+  \]
+  for every $m,c$. The ciphertext therefore gives no clue about which
+  message was selected.
+  \medskip
+  \small{This is the one-time pad argument for this small model.}
+\end{frame}
+
+\begin{frame}{A number for information leakage}
+  Entropy measures uncertainty. Conditional entropy is what remains
+  after seeing the ciphertext.
+  \[
+    \boxed{\MI{\msg}{\ctxt}
+      =\Ent{\msg}-\CEnt{\msg}{\ctxt}}
+  \]
+  \begin{itemize}
+    \item $\MI{\msg}{\ctxt}=0$: ciphertext tells us nothing about the message.
+    \item Larger $\MI{\msg}{\ctxt}$: the ciphertext reveals more.
+    \item The most it can reveal is $\Ent{\msg}$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{The main experiment: change only the key}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Fixed}
+      \begin{itemize}
+        \item $\Prob{\msg=00,01,10,11}=(0.4,0.3,0.2,0.1)$
+        \item $\ctxt=\msg\xor\key$
+        \item Key independent of the message
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Changed}
+      \begin{itemize}
+        \item $K_1,K_2$ independent $\Bern(q)$
+        \item $q=0.50,0.55,\ldots,0.95$
+        \item $\Ent{\key}=2h(q)$ bits
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \bigskip
+  At $q=0.50$, all four keys are equally likely. As $q$ grows,
+  the key $11$ becomes increasingly likely and the key is easier to guess.
+\end{frame}
+
+\begin{frame}{How I calculate the exact answer}
+  For each ciphertext $c$, sum over the four possible messages:
+  \[
+    \Prob{\ctxt=c}
+      =\sum_m\Prob{\msg=m}\Prob{\key=m\xor c}.
+  \]
+  Because XOR with a fixed message only rearranges the keys,
+  $\CEnt{\ctxt}{\msg}=\Ent{\key}$. Hence
+  \[
+    \boxed{\MI{\msg}{\ctxt}=\Ent{\ctxt}-\Ent{\key}}.
+  \]
+  Four messages and four keys make the calculation exact and checkable.
+\end{frame}
+
+\begin{frame}{Calculated result: weaker key, more leakage}
+  \begin{columns}[T]
+    \begin{column}{0.61\textwidth}
+      \begin{tikzpicture}
+        \begin{axis}[
+          width=\textwidth,height=0.69\textwidth,
+          xlabel={$q=\Prob{K_i=1}$},ylabel={bits},
+          xmin=0.5,xmax=0.95,ymin=0,ymax=2.05,
+          legend pos=north west,
+          legend style={font=\tiny,draw=none},
+          tick label style={font=\scriptsize},
+          label style={font=\scriptsize},
+          grid=major,grid style={very thin,gray!30}]
+          \addplot[thick,blue,mark=*,mark size=1.1pt] coordinates {
+            (0.50,0.000) (0.55,0.013) (0.60,0.052) (0.65,0.119)
+            (0.70,0.214) (0.75,0.341) (0.80,0.503) (0.85,0.708)
+            (0.90,0.966) (0.95,1.304)};
+          \addlegendentry{Information leaked, exact}
+          \addplot[thick,red,dashed] coordinates {
+            (0.50,2.000) (0.55,1.986) (0.60,1.942) (0.65,1.868)
+            (0.70,1.763) (0.75,1.623) (0.80,1.444) (0.85,1.220)
+            (0.90,0.938) (0.95,0.573)};
+          \addlegendentry{Key entropy}
+        \end{axis}
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.35\textwidth}
+      \small
+      At $q=0.50$: $\MI{\msg}{\ctxt}=0$.
+      \medskip
+
+      At $q=0.95$: key entropy is $0.57$ bits and leakage is
+      $1.30$ bits, out of $\Ent{\msg}\approx1.85$ bits.
+      \medskip
+
+      These are \textbf{exact calculations}; the simulation is planned.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{How I will check the calculation}
+  At each value of $q$:
+  \begin{enumerate}
+    \item Draw $10{,}000$ independent message--key pairs.
+    \item Encrypt them and count the $(\msg,\ctxt)$ pairs.
+    \item Estimate $\MI{\msg}{\ctxt}$ from the observed frequencies.
+    \item Repeat the simulation and compare its spread with the exact curve.
+  \end{enumerate}
+  \bigskip
+  A finite-sample leakage estimate may be slightly above zero even when
+  the exact leakage is zero. Repeating at larger sample sizes will show
+  whether the estimate approaches the exact answer.
+\end{frame}
+
+\begin{frame}{What this project can and cannot establish}
+  \begin{itemize}
+    \item The exact curve answers the question for this two-bit XOR model.
+    \item The simulation checks the calculation and the estimator.
+    \item Frequency and runs tests detect specific failures of a bit source.
+    \item Passing those tests alone does not prove cryptographic security.
+  \end{itemize}
+  \bigskip
+  A two-bit cipher makes the probability visible. A real key generator
+  needs a separate analysis of whether an attacker can predict it.
+\end{frame}
+
+\begin{frame}{Takeaway}
+  \begin{center}
+    \Large As the key becomes easier to guess, the ciphertext can reveal
+    more about the message.
+  \end{center}
+  \bigskip
+  \begin{center}
+    Statistical tests help identify bad randomness.\\
+    They do not, by themselves, establish secure randomness.
+  \end{center}
+  \bigskip
+  \centering\small Next: compare simulated leakage with the exact curve.
+\end{frame}
+
+\appendix
+\begin{frame}{References and backup}
+  \small
+  \begin{itemize}
+    \item C. E. Shannon (1949), \emph{Communication Theory of Secrecy Systems}:
+          perfect secrecy.
+    \item C. E. Shannon (1948), \emph{A Mathematical Theory of Communication}:
+          entropy and information.
+    \item NIST SP 800-22 Rev. 1a (2010): statistical tests for bit generators.
+  \end{itemize}
+  \bigskip
+  \textbf{Backup examples:} Caesar cipher, human-generated sequences,
+  and recovering a small generator state are in the longer
+  \texttt{main.pdf} deck.
+\end{frame}
+
+\end{document}

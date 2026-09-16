@@ -56,8 +56,7 @@ compare them:
   \item sequences typed by people who were asked to ``be random'',
   \item a linear congruential generator (LCG), which just iterates
         $X_{n+1} = (aX_n + c) \bmod m$,
-  \item the operating system's cryptographic generator,
-  \item the Blum--Blum--Shub generator~\cite{blum1986}.
+  \item the operating system's cryptographic generator.
 \end{itemize}
 Each sequence goes through a small set of tests, simplified from the NIST
 suite~\cite{nistsp80022}:
@@ -68,11 +67,6 @@ suite~\cite{nistsp80022}:
   \item \textbf{Runs test.} Count the runs of identical bits and compare with
         what independence predicts (this is the Wald--Wolfowitz
         idea~\cite{wald1940}).
-  \item \textbf{Chi-square test on pairs.} The four patterns $00, 01, 10, 11$
-        should each show up a quarter of the time. Pearson's
-        statistic~\cite{pearson1900} measures how far off they are.
-  \item \textbf{Autocorrelation.} The correlation between $b_i$ and
-        $b_{i+k}$ for small $k$. It should be close to zero.
   \item \textbf{Entropy.} $\Ent{X} = -\sum_x \Prob{x}\log_2\Prob{x}$. It is
         one bit only when the source is fair and independent.
 \end{itemize}
@@ -127,14 +121,12 @@ The cipher never changes. The only thing I change is where the key comes from.
 \begin{description}
   \item[A. Uniform key.] Each of the four keys with probability $\tfrac14$.
         I expect $\MI{\msg}{\ctxt}$ to go to zero as I draw more samples.
-  \item[B. Biased key.] One key value much more likely than the others, say
-        probability $0.7$. I expect $\MI{\msg}{\ctxt} > 0$.
-  \item[C. Sweep.] Each key bit is $1$ with probability
+  \item[B. Sweep.] Each key bit is $1$ with probability
         $q \in \{0.50, 0.55, \dots, 0.95\}$. For each $q$ I record the key
         entropy, the test results, the ciphertext distribution,
         $\CEnt{\msg}{\ctxt}$ and $\MI{\msg}{\ctxt}$.
 \end{description}
-Part C gives the main figure of the project: leakage plotted against key
+Part B gives the main figure of the project: leakage plotted against key
 bias, and against key entropy. Because the system is only two bits, I can
 also compute the mutual information exactly and check the simulation against
 it.
@@ -144,12 +136,11 @@ it.
 Then I go back to the generators from Part~I. An LCG with well-chosen
 constants passes every test in my set. But its whole future is fixed by its
 current state, and you can recover that state from a few outputs. So it looks
-random and is not secure. The Blum--Blum--Shub generator~\cite{blum1986} is
-the contrast: it was built so that predicting the next bit is as hard as a
-number-theory problem, not just so that the output looks nice. Knuth's
-chapter on random numbers~\cite{knuth1997} and Katz and Lindell's
-textbook~\cite{katz2020} both make this distinction, and this part follows
-them.
+random and is not secure. Generators built for cryptography are designed so
+that recovering the state is computationally infeasible, not just so that
+the output looks nice. Knuth's chapter on random numbers~\cite{knuth1997}
+and Katz and Lindell's textbook~\cite{katz2020} both make this distinction,
+and this part follows them.
 
 \subsection{The interactive part}
 
@@ -209,21 +200,12 @@ Shannon~\cite{shannon1948} and Cover and Thomas~\cite{cover2006}.
     Joint, marginal and conditional distributions
       & The joint law of $(\msg, \key, \ctxt)$; $\CEnt{\msg}{\ctxt}$
       & \S7.1 \\
-    Covariance and correlation
-      & Lag-$k$ autocorrelation of a bit sequence
-      & \S7.3 \\
-    Multinomial
-      & Counts of the pairs $00,01,10,11$ that feed the chi-square test
-      & \S7.4 \\
     Law of large numbers
       & Why estimated frequencies and entropies settle down as $n$ grows
       & \S10.2 \\
     Central limit theorem
       & The normal approximation behind the frequency and runs $p$-values
       & \S10.3 \\
-    Chi-square distribution
-      & Null distribution of Pearson's statistic
-      & \S10.4 \\
     Markov chains
       & A model of a person who switches between 0 and 1 too often
       & \S11.1 \\
@@ -265,12 +247,8 @@ rule, $\MI{\msg}{\ctxt} = \Ent{\msg} - \CEnt{\msg}{\ctxt}$, and the fact that
 mutual information is never negative.
 
 \paragraph{NIST SP 800-22 (2010)~\cite{nistsp80022}.}
-My frequency, runs and pair-frequency tests are simplified versions of tests
-in this suite. I follow its conventions for $p$-values.
-
-\paragraph{Blum, Blum and Shub (1986)~\cite{blum1986}.}
-The generator I use as the example of real unpredictability, as opposed to
-merely looking random.
+My frequency and runs tests are simplified versions of tests in this suite.
+I follow its conventions for $p$-values.
 
 \paragraph{Knuth, \emph{The Art of Computer Programming}, Vol.~2, Chapter~3
   (1997)~\cite{knuth1997}.}
@@ -282,9 +260,8 @@ classical empirical tests for randomness.
 The textbook treatment of perfect secrecy, and the argument for why ``passes
 the statistical tests'' is not a definition of security.
 
-\paragraph{Pearson (1900)~\cite{pearson1900} and Wald and Wolfowitz
-  (1940)~\cite{wald1940}.}
-The original papers for the chi-square goodness-of-fit test and the runs test.
+\paragraph{Wald and Wolfowitz (1940)~\cite{wald1940}.}
+The original paper for the runs test.
 
 \paragraph{Blitzstein and Hwang, \emph{Introduction to Probability}
   (2015)~\cite{blitzstein2015}.}
@@ -339,18 +316,18 @@ results I have, not results I expect.
     \toprule
     Week & Work \\
     \midrule
-    1 & Set up the code: bit-sequence sources (coins, LCG, OS generator,
-        BBS) and the five tests. Check each test on a known-fair source
+    1 & Set up the code: bit-sequence sources (coins, LCG, OS generator)
+        and the three tests. Check each test on a known-fair source
         by looking at the distribution of its $p$-values. \\
     2 & Collect human sequences; fit the two-state Markov model; write
         Part~I. \\
     3 & Caesar, XOR and one-time-pad implementations; estimators for
         $\Ent{\cdot}$, $\CEnt{\cdot}{\cdot}$ and $\MI{\cdot}{\cdot}$ from
         samples; write Part~II. \\
-    4 & Main experiment (A, B and the sweep C); exact mutual information
+    4 & Main experiment (A and the sweep B); exact mutual information
         for the two-bit system to compare against; the main figure. \\
-    5 & Part~IV: recover an LCG's state from its outputs; contrast with
-        BBS. Interactive program. \\
+    5 & Part~IV: recover an LCG's state from its outputs. Interactive
+        program. \\
     6 & Write the introduction and conclusion last; proofread; final
         figures. \\
     \bottomrule
