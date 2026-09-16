@@ -10,8 +10,8 @@ time.
 ## Repository layout
 
 ```
-paper/   the LaTeX paper (main.tex, sections/, refs.bib, figures/, main.pdf)
-slides/  Beamer deck for the presentation (shares paper/macros.tex)
+paper/   the LaTeX paper (main.tex, sections/, refs.bib, figures/, main.pdf -- the report PDF)
+slides/  Beamer deck for the presentation (main.tex, main.pdf; shares paper/macros.tex)
 code/    simulations and the randomness-testing / encryption tools
 ```
 
@@ -21,7 +21,7 @@ Requires a TeX distribution with `latexmk` and `biber`.
 
 ```sh
 cd paper && latexmk -pdf main.tex
-cd slides && latexmk -pdf main.tex   # slides (needs the metropolis theme)
+cd slides && latexmk -pdf main.tex   # slides (Singapore theme, ships with beamer)
 ```
 
 ## References
