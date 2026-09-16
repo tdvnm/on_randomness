@@ -1,4 +1,5 @@
 % Deck for the project presentation. Shares macros with the paper.
+% Sections follow paper/sections/01-07.
 \documentclass[10pt,aspectratio=169]{beamer}
 \usetheme{Singapore}
 \usepackage[T1]{fontenc}
@@ -34,7 +35,7 @@
 \end{frame}
 
 % =====================================================================
-\section{The problem}
+\section[Intro]{Introduction}
 
 \begin{frame}{Two meanings of ``random''}
   \begin{enumerate}
@@ -114,9 +115,6 @@
   See that they agree.
 \end{frame}
 
-% =====================================================================
-\section{The model}
-
 \begin{frame}{One project, two models}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
@@ -151,8 +149,26 @@
   in Model II.
 \end{frame}
 
-% ---------------------------------------------------------------------
-\subsection{Model I: a bit source}
+\begin{frame}{The chain I want to follow}
+  \[
+    \text{randomness} \;\to\; \text{uncertainty} \;\to\;
+    \text{information} \;\to\; \text{secrecy}
+  \]
+  Four studies, one per link. Each has a claim, a derivation, a
+  simulation, and a way to be wrong.
+  \medskip
+  \begin{enumerate}
+    \item \textbf{Test the sources.} Which tests catch which failures?
+    \item \textbf{Measure the ciphers.} How much does each one leak?
+    \item \textbf{Degrade the key.} The main experiment: leakage as a
+          function of key entropy.
+    \item \textbf{Break a good-looking generator.} Pass every test,
+          still predictable.
+  \end{enumerate}
+\end{frame}
+
+% =====================================================================
+\section[Randomness]{Understanding Randomness}
 
 \begin{frame}{Model I: the random variables}
   A sequence is $B_1, B_2, \dots, B_n$ with each $B_i \in \bits$.
@@ -181,6 +197,28 @@
   $\Prob{T \text{ at least as extreme as } t_{\mathrm{obs}} \mid H_0}$.
 \end{frame}
 
+\begin{frame}{Model I: entropy of a source}
+  Not a test statistic but a measure of how unpredictable the source
+  is.
+  \[
+    \Ent{B} = -\sum_{b \in \bits} \Prob{B = b}\log_2 \Prob{B = b}
+            = h(p) = -p\log_2 p - (1-p)\log_2(1-p).
+  \]
+  It is $1$ bit only when $p = \tfrac12$. For $p = 0.9$ it is
+  $0.47$ bits. I estimate it by plugging in the observed frequency.
+  \pause
+  \medskip
+
+  For a sequence the question is the conditional one: how much is
+  left to guess about $B_{n+1}$ once $B_1, \dots, B_n$ are known,
+  $\CEnt{B_{n+1}}{B_1,\dots,B_n}$. For the ideal source it is $1$ bit.
+  For a generator it is $0$ once the state is known. Every test in the
+  next section looks at the output; none of them can see this number.
+\end{frame}
+
+% =====================================================================
+\section[Tests]{Statistical Tests for Randomness}
+
 \begin{frame}{Model I: frequency and runs}
   \textbf{Frequency.} $X = \sum_{i=1}^{n} B_i$, the number of ones.
   Under $H_0$
@@ -206,34 +244,6 @@
   the test sees it.
 \end{frame}
 
-\begin{frame}{Model I: pairs, lags and entropy}
-  \textbf{Chi-square on pairs.} Cut the sequence into $n/2$ blocks of
-  two bits. $N_{ab}$ counts the block $ab$. Under $H_0$
-  \[
-    (N_{00}, N_{01}, N_{10}, N_{11}) \sim \Mult(\tfrac n2;\
-      \tfrac14, \tfrac14, \tfrac14, \tfrac14),
-    \qquad
-    Q = \sum_{ab} \frac{(N_{ab} - n/8)^2}{n/8} \approx \chi^2_3 .
-  \]
-  \pause
-  \textbf{Autocorrelation at lag $k$.}
-  $A_k = \sum_{i=1}^{n-k} \Ind{B_i \ne B_{i+k}}$.
-  The functionals $B_i \xor B_{i+k}$ are linearly independent over
-  $\mathrm{GF}(2)$, so under $H_0$ they are i.i.d.\ $\Bern(\tfrac12)$ and
-  $A_k \sim \Bin(n-k, \tfrac12)$ exactly.
-  \pause
-  \medskip
-
-  \textbf{Entropy.} Not a test statistic but a measure of how
-  unpredictable the source is.
-  \[
-    \Ent{B} = -\sum_{b \in \bits} \Prob{B = b}\log_2 \Prob{B = b}
-            = h(p) = -p\log_2 p - (1-p)\log_2(1-p).
-  \]
-  It is $1$ bit only when $p = \tfrac12$. For $p = 0.9$ it is
-  $0.47$ bits. I estimate it by plugging in the observed frequency.
-\end{frame}
-
 \begin{frame}{Model I: summary of the random variables}
   \begin{center}\footnotesize
     \begin{tabular}{@{}llll@{}}
@@ -244,10 +254,6 @@
       $X$ & $\sum_{i=1}^{n} B_i$ & $\Bin(n,\tfrac12)$ & frequency \\
       $R$ & $1+\sum_{i=1}^{n-1}\Ind{B_i\ne B_{i+1}}$
           & $R-1 \sim \Bin(n-1,\tfrac12)$ & runs \\
-      $N_{ab}$ & count of block $ab$ among $n/2$
-               & $\Mult(\tfrac n2;\tfrac14,\dots,\tfrac14)$ & chi-square \\
-      $Q$ & $\sum_{ab}(N_{ab}-n/8)^2/(n/8)$ & $\approx\chi^2_3$ & chi-square \\
-      $A_k$ & $\sum_{i=1}^{n-k}\Ind{B_i\ne B_{i+k}}$ & $\Bin(n-k,\tfrac12)$ & autocorrelation \\
       $\Ent{B}$ & $h(p)$ & $=1$ bit iff $p=\tfrac12$ & entropy \\
       $P$ & $p$-value of any test & $\Unif(0,1)$ & calibration \\
       \bottomrule
@@ -260,8 +266,68 @@
   histogram before I trust it on anything else.
 \end{frame}
 
-% ---------------------------------------------------------------------
-\subsection{Model II: a cipher}
+% =====================================================================
+\section[Human vs machine]{Human Randomness vs Computer Randomness}
+
+\begin{frame}{Study 1: test the sources}
+  \textbf{Sources.} Fair coin, biased coin ($p = 0.6$), human sequences
+  (collected from classmates, $n \approx 100$ each), an LCG, and the OS
+  generator.
+  \medskip
+
+  \textbf{Method.} $1000$ sequences of $n = 1000$ bits per source (fewer
+  for people). Run all three tests on each. Record $p$-values and
+  the plug-in entropy. Fit $\hat s$ (switching probability) to the human
+  data.
+  \medskip
+
+  \textbf{Claims.}
+  \begin{itemize}
+    \item The frequency test catches the biased coin and nothing else.
+    \item The runs test catches people: $\hat s > \tfrac12$ and
+          $R$ too large.
+    \item The LCG and the OS generator pass all three.
+  \end{itemize}
+  \medskip
+
+  \textbf{Wrong if} the human sequences look like fair coins under every
+  test, or if the LCG fails a test. Either would change Study~4.
+\end{frame}
+
+% =====================================================================
+\section[PRNG]{Random Numbers vs Pseudorandom Numbers}
+
+\begin{frame}{Study 4: break a good-looking generator}
+  Back to the LCG from Study~1. It passed every test. Is it random?
+  \medskip
+
+  \textbf{Claim.} For a real source
+  $\CEnt{B_{n+1}}{B_1,\dots,B_n} = 1$ bit: the past says nothing about
+  the next bit. For the LCG it is $0$ once the state is known, and the
+  state can be recovered from a few outputs.
+  \medskip
+
+  \textbf{Method.}
+  \begin{itemize}
+    \item Use a small modulus $m$. Try every possible state $X_0$ and
+          keep the ones that match the observed bits. Count how many
+          outputs it takes until only one is left.
+    \item Use the LCG as the key stream of the cipher in the next
+          section. Show that an attacker who sees a short prefix of the
+          plaintext reads the rest.
+  \end{itemize}
+  \medskip
+
+  This is the slide the title is about. The LCG's output has entropy $1$
+  bit per bit as far as the tests can tell, and $0$ bits per bit to
+  someone who knows the state. Statistical randomness is a property of
+  the output. Security is a property of what the attacker knows. Real
+  cryptographic generators are built so that recovering the state is
+  computationally infeasible; the LCG is not.
+\end{frame}
+
+% =====================================================================
+\section[Encryption]{Introducing Encryption}
 
 \begin{frame}{Model II: the random variables}
   Three random variables on $\bits^n$:
@@ -302,9 +368,7 @@
       \addlinespace
       $\key$ & independent of $\msg$; one of & \\
       \quad A & $\Unif(\bits^2)$; $\Ent{\key} = 2$ bits & one-time pad \\
-      \quad B & $\Prob{\key=00}=0.7$, the rest $0.1$ each;
-                $\Ent{\key} = 1.36$ bits & one bad value \\
-      \quad C & $K_1,K_2$ i.i.d.\ $\Bern(q)$, $q\in[0.5,0.95]$;
+      \quad B & $K_1,K_2$ i.i.d.\ $\Bern(q)$, $q\in[0.5,0.95]$;
                 $\Ent{\key}=2h(q)$ & the sweep \\
       \addlinespace
       $\ctxt$ & $\ctxt = \msg\xor\key$;\;
@@ -372,50 +436,7 @@
 \end{frame}
 
 % =====================================================================
-\section{Research direction}
-
-\begin{frame}{The chain I want to follow}
-  \[
-    \text{randomness} \;\to\; \text{uncertainty} \;\to\;
-    \text{information} \;\to\; \text{secrecy}
-  \]
-  Four studies, one per link. Each has a claim, a derivation, a
-  simulation, and a way to be wrong.
-  \medskip
-  \begin{enumerate}
-    \item \textbf{Test the sources.} Which tests catch which failures?
-    \item \textbf{Measure the ciphers.} How much does each one leak?
-    \item \textbf{Degrade the key.} The main experiment: leakage as a
-          function of key entropy.
-    \item \textbf{Break a good-looking generator.} Pass every test,
-          still predictable.
-  \end{enumerate}
-\end{frame}
-
-\begin{frame}{Study 1: test the sources}
-  \textbf{Sources.} Fair coin, biased coin ($p = 0.6$), human sequences
-  (collected from classmates, $n \approx 100$ each), an LCG, the OS
-  generator, Blum--Blum--Shub.
-  \medskip
-
-  \textbf{Method.} $1000$ sequences of $n = 1000$ bits per source (fewer
-  for people). Run all five tests on each. Record $p$-values and
-  the plug-in entropy. Fit $\hat s$ (switching probability) to the human
-  data.
-  \medskip
-
-  \textbf{Claims.}
-  \begin{itemize}
-    \item The frequency test catches the biased coin and nothing else.
-    \item The runs test catches people: $\hat s > \tfrac12$ and
-          $R$ too large.
-    \item The LCG, the OS generator and BBS pass all five.
-  \end{itemize}
-  \medskip
-
-  \textbf{Wrong if} the human sequences look like fair coins under every
-  test, or if the LCG fails a test. Either would change Study~4.
-\end{frame}
+\section[Weak ciphers]{Statistical Weakness of Simple Ciphers}
 
 \begin{frame}{Study 2: measure the ciphers}
   \textbf{Caesar.} Message is English text, key is a shift
@@ -426,10 +447,6 @@
   histogram, shifted.
   \medskip
 
-  \textbf{XOR with a bad key.} Key from source B. Exact leakage
-  $\MI{\msg}{\ctxt} = 0.59$ bits of the $1.85$ in the message.
-  \medskip
-
   \textbf{One-time pad.} Key from source A. Exact leakage $0$.
   \medskip
 
@@ -438,12 +455,14 @@
   $\Ent{\msg} - \CEnt{\msg}{\ctxt}$. Compare with the exact value.
   \medskip
 
-  \textbf{Something I already know will happen.} The plug-in estimate
-  of $\MI{\msg}{\ctxt}$ is biased upward, by about
-  $(|\mathcal M|-1)(|\mathcal C|-1)/(2N\ln 2) \approx 6\times10^{-4}$
-  bits for $N = 10^4$. So the one-time pad will not read exactly zero.
-  I will show the estimate falling towards zero as $N$ grows.
+  \textbf{Something I already know will happen.} An estimate from a
+  finite sample is always a little above zero, even for the one-time
+  pad. I will show the estimate falling towards zero as $N$ grows,
+  rather than hide it.
 \end{frame}
+
+% =====================================================================
+\section[Plan]{Research direction}
 
 \begin{frame}{Study 3: the main experiment}
   Fix the cipher. Fix the message. Only change the key source, with
@@ -498,35 +517,6 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Study 4: break a good-looking generator}
-  Back to the LCG from Study~1. It passed every test. Now use it as the
-  key source for the cipher.
-  \medskip
-
-  \textbf{Claim.} For a real source
-  $\CEnt{B_{n+1}}{B_1,\dots,B_n} = 1$ bit: the past says nothing about
-  the next bit. For the LCG it is $0$ once the state is known, and the
-  state can be recovered from a few outputs.
-  \medskip
-
-  \textbf{Method.}
-  \begin{itemize}
-    \item Recover $X_i$ from the output bits, then predict every later
-          bit. Count how many outputs it takes.
-    \item Encrypt with the LCG as key stream. Show that an attacker who
-          sees a short prefix of the plaintext reads the rest.
-    \item Contrast with Blum--Blum--Shub, where predicting the next bit
-          is as hard as factoring. Same statistics, different
-          unpredictability.
-  \end{itemize}
-  \medskip
-
-  This is the slide the title is about. The LCG's output has entropy $1$
-  bit per bit as far as the tests can tell, and $0$ bits per bit to
-  someone who knows the state. Statistical randomness is a property of
-  the output. Security is a property of what the attacker knows.
-\end{frame}
-
 \begin{frame}{What I expect, and what would surprise me}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
@@ -538,7 +528,7 @@
         \item One-time pad: $\MI{\msg}{\ctxt} \to 0$ as $N$ grows.
         \item Leakage rises as $\Ent{\key}$ falls, never below
               $\Ent{\msg} - \Ent{\key}$.
-        \item The LCG passes five tests and is predictable from a
+        \item The LCG passes all three tests and is predictable from a
               handful of outputs.
       \end{itemize}
     \end{column}
@@ -546,7 +536,7 @@
       \textbf{Would surprise me}
       \begin{itemize}
         \item People who pass the runs test. Then I would look at the
-              lag-$2$ autocorrelation.
+              length of the longest run instead.
         \item A simulated point below Shannon's bound. Impossible if
               the code is right, so it is a bug detector.
         \item A gap between simulation and the exact curve that does
@@ -567,11 +557,11 @@
         \toprule
         Week & Work \\
         \midrule
-        1 & Sources and the five tests. Calibrate on a fair coin. \\
+        1 & Sources and the three tests. Calibrate on a fair coin. \\
         2 & Collect human sequences. Fit $s$. Write Part~I. \\
         3 & Caesar, XOR, one-time pad. Entropy estimators. Part~II. \\
         4 & Main experiment. Exact curve. Main figure. \\
-        5 & Recover the LCG. Contrast BBS. Interactive program. \\
+        5 & Recover the LCG state. Interactive program. \\
         6 & Introduction and conclusion last. Proofread. \\
         \bottomrule
       \end{tabular}
@@ -582,7 +572,7 @@
         \item The report, as a PDF in the GitHub repository
               (\texttt{paper/main.pdf}).
         \item The code, in the same repository (\texttt{code/}).
-        \item A small program: type in a sequence and see all five
+        \item A small program: type in a sequence and see all three
               tests run on it; encrypt a message and see what leaks.
       \end{itemize}
       \medskip
