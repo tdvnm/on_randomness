@@ -1,50 +1,59 @@
 # Does Random Mean Secure? — speaking guide
 
-Use [`presentation.pdf`](presentation.pdf) for the talk. Slides 1–16 are the
-presentation; slide 17 is references and backup. The timings target 18½ minutes,
-leaving roughly 1½ minutes of margin in a 20-minute slot. Speak in your own
-words; these are cues, not text to read aloud.
+Use [`presentation.pdf`](presentation.pdf) for the talk. Slides 1–15 are the
+presentation; slides 16–20 are backup and references. The plan targets about
+19 minutes in a 20-minute slot. Speak in your own words; these are cues, not
+text to read aloud.
+
+Every slide has two names. The small grey label above the title says where
+you are (section · topic). The title says why the slide matters.
 
 | Slide | Target | What to say |
 | --- | --- | --- |
-| 1. Title | 0:00–0:20 | “I’m studying what happens when an encryption key looks random but becomes easier to guess.” |
-| 2. Problem | 0:20–1:20 | “We often focus on the encryption rule. Here I keep that rule fixed and vary the randomness used for the key. My question is how much more the ciphertext tells an attacker.” |
-| 3. Route | 1:20–2:20 | Give the audience the map: test a bit source, use it as a key, measure leakage, then explain why statistical tests have limits. Say this is a **proposal** with one exact calculation already completed. |
-| 4. Ideal source | 2:20–3:30 | “Independent fair bits” means each bit is 0 or 1 with equal probability and previous bits do not affect the next. Bias and dependence are different failures. |
-| 5. Two tests | 3:30–5:30 | Explain the statistics in words before the formulas. Frequency counts ones. Runs counts groups of equal bits. Give a verbal example: `010101...` has balanced zeros and ones but switches too often. Under the ideal model, both counts have known binomial distributions. |
-| 6. Test meaning | 5:30–6:30 | “A small p-value makes the ideal model doubtful. A large one means this test did not find a problem; it does not certify security.” The source comparison on the slide is planned work. |
-| 7. Generator gap | 6:30–7:30 | “A deterministic generator can make output that looks convincing in a short sample. Its state still controls every future bit. If that state is recovered, the output is predictable.” Say **can**, not **will**, pass your tests. |
-| 8. XOR cipher | 7:30–8:40 | Work through `01 XOR 10 = 11` slowly. Then show why XORing `11` with the same key returns `01`. The attacker knows the method but lacks the actual key. |
-| 9. Perfect secrecy | 8:40–10:00 | “Perfect secrecy means the ciphertext never changes my belief about the message.” Explain the proof: for any proposed message and ciphertext, exactly one key connects them; a uniform key makes every such key equally likely. The independence and one-use assumptions matter. |
-| 10. Leakage | 10:00–11:10 | “Entropy is uncertainty measured in bits. Conditional entropy is uncertainty after I see the ciphertext. Their difference is what I learned.” Zero is perfect secrecy. |
-| 11. Setup | 11:10–12:30 | Point to the fixed and changed columns. The lopsided message distribution is fixed. At q = 0.5 keys are uniform; at q = 0.95 the key `11` is very likely. Only q changes. |
-| 12. Exact calculation | 12:30–13:45 | “Because there are just four messages, I can calculate every ciphertext probability by adding four cases. This gives a shortcut: leakage equals ciphertext entropy minus key entropy.” Do not derive each logarithm on the slide. |
-| 13. Graph | 13:45–15:50 | **Slow down here.** Blue is leaked information; red is remaining key uncertainty. At q = 0.5 blue is zero. At q = 0.95 red is about 0.57 bits and blue is about 1.30 of the message’s 1.85 bits. Say the graph is an **exact calculation**, not a measured simulation result. |
-| 14. Simulation | 15:50–17:00 | Describe the sampling and count table. The purpose is to verify the exact curve and see finite-sample error. An estimate slightly above zero at q = 0.5 is expected; it should approach zero as sample size grows. |
-| 15. Scope | 17:00–18:00 | “This two-bit model lets me calculate leakage precisely. The tests find particular statistical defects; they cannot prove that a real generator resists an attacker.” |
-| 16. Takeaway | 18:00–18:30 | Repeat the question and answer in one sentence: “In this model, as the key becomes easier to guess, the ciphertext reveals more; passing output tests alone is not enough to call a key secure.” Stop. |
+| 1. Title | 0:00–0:20 | “I want to ask one question: if the randomness behind an encryption key becomes easier to predict, how much more does the ciphertext reveal?” |
+| 2. Can we actually make something random? | 0:20–1:30 | Ask the room to write 10–15 bits. Show the example. Ask the three questions. Do not go into psychology; the point is that “looks random” is a feeling, not a model. |
+| 3. So what should a random sequence actually do? | 1:30–2:45 | Fairness and independence in words first, then the notation. Bias and dependence are different ways to fail, and a test built for one can miss the other. |
+| 4. Half zeros and half ones is not enough | 2:45–4:00 | Both strings have eight ones. The frequency statistic is Binomial because it counts successes in independent Bernoulli trials. The test asks whether the count is unusual; it cannot see order. |
+| 5. Two tests ask two different questions | 4:00–5:15 | Define a run with `00 | 111 | 00`. Runs count switches, and each neighbouring pair switches independently, so again Binomial. Frequency measures balance; runs measure pattern. |
+| 6. What if randomness has memory? | 5:15–6:45 | The chain is here only as a clean model of dependence: the next bit depends only on the current bit. At s = 0.5 it is the ideal source; at s = 0.8 it flips too often. Balance stays 50/50; E[R] = 1 + (n−1)s moves. **Say explicitly that this is not the key model used later.** |
+| 7. Looking random is not the same as being unpredictable | 6:45–8:45 | A p-value is a statement under the ideal model. Large p means this test found nothing. Then the two questions: statistical versus security. A generator is a rule on hidden state; recover the state and the future is fixed. Deterministic is not the problem; cryptographic generators are deterministic too, and their goal is that prediction is infeasible. |
+| 8. What happens when randomness becomes a key? | 8:45–9:45 | Transition: “so far predictability was a property of a sequence; now the bits are a key.” Work through `01 XOR 10 = 11` and back. Two bits means four of everything, so every number later is exact. |
+| 9. When does the ciphertext tell us nothing? | 9:45–11:30 | Read the big equation in words first. Uniform key: exactly one key links each (m, c), so the likelihood is 1/4 for every m and Bayes cancels it. Perfect secrecy. |
+| 10. How do we measure what gets revealed? | 11:30–13:15 | Entropy is uncertainty in bits: certain 0, fair 1, biased 0.47. H(M|C) is what remains after the ciphertext. I(M;C) is the reduction; zero means nothing leaked. |
+| 11. What if I change only the randomness? | 13:15–14:30 | Point at the two boxes. Fixed: message distribution, cipher, independence. Changed: only q. **This is bias, not dependence; the Markov source is a different failure.** |
+| 12. As the key becomes predictable, secrecy begins to disappear | 14:30–16:00 | At q = 0.95 the key `11` shows up 90% of the time. Then the concrete case: before the ciphertext the attacker gives “00” 40%; after seeing `11`, 94%. That change of belief is the leakage. |
+| 13. The weaker the key, the more the ciphertext reveals | 16:00–18:00 | **Slow down here.** Purple line is leakage; the falling line is key entropy; dashed is H(M). At q = 0.5 leakage is zero. At q = 0.95 the key has 0.57 bits left and 1.30 of the 1.85 message bits leak. This is exact, not simulated. It is a result for this cipher, message distribution and key family; do not claim more. |
+| 14. Checking the curve by simulation | 18:00–18:40 | Planned, not done. Sample, encrypt, count, estimate, compare. Say the plug-in estimate sits slightly above zero at q = 0.5 and shrinks with sample size. |
+| 15. Does random mean secure? | 18:40–19:20 | Three levels: looks random, hard to predict, protects information. Three sentences. Then the closing line and stop. |
 
 ## Rehearsal priorities
 
-1. Run through the deck once with a timer. If over 20 minutes, shorten slides 4–7; keep time for slide 13.
-2. Practice explaining slides 5, 9, 10, and 13 without reading them. Those carry the graded mathematics.
-3. Keep slide 17 hidden unless asked for sources. Have the longer `main.pdf` available for questions about Caesar cipher, human randomness, or the generator attack.
+1. Run through with a timer. If over 20 minutes, cut words on slides 3, 7
+   and 11; keep the time on slides 9, 12 and 13.
+2. Practice slides 6, 9, 10 and 13 without reading them. They carry the
+   mathematics that will be graded.
+3. Keep slides 16–20 hidden unless asked. Backups: exact meaning of a
+   p-value, Markov details, the full q = 0.95 posterior table, a small
+   LCG, references.
 
 ## Likely questions
 
-**Why only two bits?** Every probability and leakage value can be calculated
-exactly, so the simulation has a clear reference answer. This is a model for
-the relationship, not a claim about the size of real encryption keys.
+**Why only two bits?** Every probability and leakage value is exact, so a
+simulation has a reference answer. It is a model of the relationship, not a
+claim about real key sizes.
 
-**Does a high p-value mean a secure generator?** No. It means a particular
-statistic did not reveal a departure from the chosen null model on that sample.
+**Does a high p-value mean a secure generator?** No. One statistic did not
+find a departure from the null model on that sample.
 
-**Why must the key be used once?** Reusing a one-time-pad key gives an attacker
-relationships between messages even if the key was originally uniform.
+**Where is the Markov chain used?** Only on slide 6, as a model of a source
+with a switching habit. The leakage experiment uses independent biased bits.
 
-**Why is the simulated leakage at q = 0.5 sometimes positive?** The plug-in
-estimate from a finite table has sampling error and a small upward bias.
+**Why must the key be used once?** Reusing a one-time-pad key gives an
+attacker relationships between messages even if the key was uniform.
 
-**Does lower key entropy always imply more leakage?** The rising curve is for
-this fixed message distribution, XOR cipher, and family of biased key sources.
-Entropy alone does not determine the leakage of every possible cipher.
+**Why is a simulated leakage at q = 0.5 positive?** The plug-in estimate from
+a finite table has sampling error and a small upward bias.
+
+**Does lower key entropy always mean more leakage?** The rising curve is for
+this fixed message distribution, XOR cipher and family of biased independent
+keys. Entropy alone does not determine the leakage of every cipher.
